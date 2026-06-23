@@ -1,0 +1,47 @@
+# Factual QA — deterministic scorers (no judge calls).
+# Runs every case against the three default Claude targets.
+name: factual-qa
+description: >
+  Short factual questions scored with deterministic matchers (exact_match,
+  contains, regex, json_valid). No judge calls — cheap and fully reproducible.
+
+targets:
+  - id: opus
+    model: claude-opus-4-8
+    thinking: disabled
+    max_tokens: 256
+  - id: sonnet
+    model: claude-sonnet-4-6
+    thinking: disabled
+    max_tokens: 256
+  - id: haiku
+    model: claude-haiku-4-5
+    thinking: disabled
+    max_tokens: 256
+
+cases:
+  - id: capital-france
+    prompt: "What is the capital of France? Answer with just the city name."
+    scorer:
+      type: contains
+      expected: Paris
+
+  - id: speed-of-light
+    prompt: "What is the speed of light in a vacuum, in meters per second? Give only the number rounded to the nearest whole number."
+    scorer:
+      type: regex
+      expected: "299[,.]?792[,.]?458"
+
+  - id: json-shape
+    prompt: >
+      Return a JSON object with keys "language" and "year" describing the
+      Python programming language's first release. Output only valid JSON,
+      no prose, no markdown fences.
+    scorer:
+      type: json_valid
+
+  - id: boolean-answer
+    prompt: "Is 17 a prime number? Answer with exactly one word: yes or no."
+    scorer:
+      type: exact_match
+      expected: "yes"

@@ -1,0 +1,46 @@
+# Summarization quality — uses the llm_judge scorer (Claude-as-judge).
+# Each answer is scored 0..1 against a rubric by the judge_model.
+name: summarization-quality
+description: >
+  Open-ended summarization and explanation tasks graded by an LLM judge
+  against a rubric. Exercises the llm_judge scorer and adaptive thinking
+  on the judge calls.
+
+judge_model: claude-sonnet-4-6
+
+targets:
+  - id: opus
+    model: claude-opus-4-8
+    thinking: disabled
+    max_tokens: 512
+  - id: haiku
+    model: claude-haiku-4-5
+    thinking: disabled
+    max_tokens: 512
+
+cases:
+  - id: explain-b2-to-pm
+    prompt: >
+      In two sentences, explain object storage to a non-technical product
+      manager. Avoid jargon.
+    scorer:
+      type: llm_judge
+      rubric: >
+        Award full marks only if the answer is at most two sentences, avoids
+        jargon (no "S3", "buckets", "API" without explanation), and gives an
+        accurate, intuitive description of object storage.
+      pass_threshold: 0.7
+
+  - id: tldr-paragraph
+    prompt: >
+      Summarize the following in one sentence: "Eval Vault runs an LLM eval
+      against several Claude models, scores every answer, and archives each
+      input, output, score, and trace to Backblaze B2 as immutable JSON so
+      teams can audit and diff results months later."
+    scorer:
+      type: llm_judge
+      rubric: >
+        Full marks for a single sentence that captures (a) running evals
+        against multiple models and (b) archiving results to B2 for later
+        audit/diff. Deduct for missing either idea or exceeding one sentence.
+      pass_threshold: 0.6
