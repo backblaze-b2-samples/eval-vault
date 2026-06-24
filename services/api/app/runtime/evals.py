@@ -6,24 +6,96 @@ from app.repo import AnthropicProvider
 from app.service.comparison import ComparisonResult, compare_runs
 from app.service.eval_runner import run_eval
 from app.service.eval_store import (
+    DefinitionExistsError,
+    DefinitionNotFoundError,
+    InvalidDefinitionNameError,
     RunNotFoundError,
+    create_definition,
+    delete_definition,
     get_artifact,
     get_definition,
     get_manifest,
     get_run_grid,
+    list_definition_summaries,
     list_definitions,
     list_runs,
+    update_definition,
 )
-from app.types import EvalDefinition, RunListItem, RunManifest
+from app.types import (
+    EvalDefinition,
+    EvalDefinitionSummary,
+    RunListItem,
+    RunManifest,
+)
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
 
-@router.get("/evals", response_model=list[EvalDefinition])
+@router.get("/evals", response_model=list[EvalDefinitionSummary])
 async def list_evals_endpoint():
-    return list_definitions()
+    return list_definition_summaries()
+
+
+@router.post("/evals", response_model=EvalDefinition, status_code=201)
+async def create_eval_endpoint(definition: EvalDefinition):
+    """Persist a user-created eval definition. The body is fully validated by
+    Pydantic (nested targets/cases/scorer), so a malformed structure auto-422s."""
+    try:
+        return create_definition(definition)
+    except InvalidDefinitionNameError:
+        raise HTTPException(
+            status_code=422,
+            detail="Invalid eval name — use a lowercase slug (a-z, 0-9, hyphens)",
+        ) from None
+    except DefinitionExistsError:
+        raise HTTPException(
+            status_code=409, detail=f"Eval '{definition.name}' already exists"
+        ) from None
+    except RuntimeError as exc:  # B2 put failure
+        logger.error("Failed to persist eval definition: %s", exc)
+        raise HTTPException(status_code=502, detail="Failed to save eval") from None
+
+
+@router.put("/evals/{name}", response_model=EvalDefinition)
+async def update_eval_endpoint(name: str, definition: EvalDefinition):
+    """Overwrite a user-created eval definition. The name is immutable (it is the
+    identifier and B2 key), so the body name must match the URL. Editing a
+    shipped-only eval 404s — only user-created definitions are editable."""
+    if definition.name != name:
+        raise HTTPException(
+            status_code=400, detail="Eval name in the body must match the URL"
+        )
+    try:
+        return update_definition(definition)
+    except InvalidDefinitionNameError:
+        raise HTTPException(
+            status_code=422,
+            detail="Invalid eval name — use a lowercase slug (a-z, 0-9, hyphens)",
+        ) from None
+    except DefinitionNotFoundError:
+        raise HTTPException(
+            status_code=404, detail=f"No editable eval named '{name}'"
+        ) from None
+    except RuntimeError as exc:  # B2 put failure
+        logger.error("Failed to update eval definition: %s", exc)
+        raise HTTPException(status_code=502, detail="Failed to save eval") from None
+
+
+@router.delete("/evals/{name}")
+async def delete_eval_endpoint(name: str):
+    """Delete a user-created eval definition. Shipped-only evals 404 (read-only)."""
+    try:
+        delete_definition(name)
+    except (InvalidDefinitionNameError, DefinitionNotFoundError):
+        raise HTTPException(
+            status_code=404, detail=f"No editable eval named '{name}'"
+        ) from None
+    except RuntimeError as exc:  # B2 delete failure
+        logger.error("Failed to delete eval definition: %s", exc)
+        raise HTTPException(status_code=502, detail="Failed to delete eval") from None
+    return {"deleted": True, "name": name}
 
 
 @router.get("/evals/runs", response_model=list[RunListItem])

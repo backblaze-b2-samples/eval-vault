@@ -13,4 +13,5 @@ Known tech debt items. Agents update this when they discover or create tech debt
 | `_humanize_bytes` duplicated in Python (repo + service) | DRY violation, drift risk | Extract to `app/types/formatting.py` shared util | Medium | Resolved |
 | `humanizeBytes` duplicated in TypeScript | DRY violation | Extract to `lib/utils.ts` | Low | Open |
 | `formatDate` duplicated in TypeScript | DRY violation | Extract to `lib/utils.ts` | Low | Open |
-| No test harness for feature specs | No automated verification | Add pytest fixtures + test files per feature | Medium | Resolved (partial — tests added for upload, files, activity, errors) |
+| No test harness for feature specs | No automated verification | Add pytest fixtures + test files per feature | Medium | Resolved (partial — tests added for upload, files, activity, errors, eval definitions) |
+| `create_definition` name uniqueness is read-then-write (TOCTOU) | Two concurrent creates of the same name can both pass the check; the second overwrites the first | Acceptable for this app (B2 is versioned, so no data is lost). If multi-writer becomes real, gate on a conditional put / lock. No locking in v1. | Low | Open |

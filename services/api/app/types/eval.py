@@ -47,7 +47,18 @@ class EvalDefinition(BaseModel):
 
     name: str
     description: str = ""
-    targets: list[EvalTarget]
-    cases: list[EvalCase]
+    targets: list[EvalTarget] = Field(min_length=1)
+    cases: list[EvalCase] = Field(min_length=1)
     # Judge model for llm_judge scorers (cheaper than the targets by default).
     judge_model: str = "claude-sonnet-4-6"
+
+
+class EvalDefinitionSummary(EvalDefinition):
+    """An `EvalDefinition` plus a derived `editable` flag for the list view.
+
+    `editable` is True for user-created definitions (persisted on B2, so they can
+    be edited/deleted from the UI) and False for read-only shipped YAML examples.
+    Transport-only — this is never persisted; B2 JSON holds a plain EvalDefinition.
+    """
+
+    editable: bool = False

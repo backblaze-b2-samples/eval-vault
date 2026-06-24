@@ -3,6 +3,7 @@ import type {
   ComparisonResult,
   DailyUploadCount,
   EvalDefinition,
+  EvalDefinitionSummary,
   EvalStats,
   FileMetadata,
   FileUploadResponse,
@@ -136,7 +137,33 @@ export function uploadFile(
 // --- Eval Vault endpoints ---
 
 export async function getEvals() {
-  return apiFetch<EvalDefinition[]>("/evals");
+  return apiFetch<EvalDefinitionSummary[]>("/evals");
+}
+
+export async function createEval(definition: EvalDefinition) {
+  return apiFetch<EvalDefinition>("/evals", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(definition),
+  });
+}
+
+export async function updateEval(definition: EvalDefinition) {
+  return apiFetch<EvalDefinition>(
+    `/evals/${encodeURIComponent(definition.name)}`,
+    {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(definition),
+    }
+  );
+}
+
+export async function deleteEval(name: string) {
+  return apiFetch<{ deleted: boolean; name: string }>(
+    `/evals/${encodeURIComponent(name)}`,
+    { method: "DELETE" }
+  );
 }
 
 export async function getEvalRuns() {

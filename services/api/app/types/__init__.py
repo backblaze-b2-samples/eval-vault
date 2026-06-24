@@ -1,6 +1,7 @@
 from app.types.eval import (
     EvalCase,
     EvalDefinition,
+    EvalDefinitionSummary,
     EvalTarget,
     ScorerConfig,
     ScorerType,
@@ -24,6 +25,7 @@ __all__ = [
     "DailyUploadCount",
     "EvalCase",
     "EvalDefinition",
+    "EvalDefinitionSummary",
     "EvalTarget",
     "FileMetadata",
     "FileUploadResponse",

@@ -75,6 +75,13 @@ export interface EvalDefinition {
   judge_model: string;
 }
 
+/** An EvalDefinition as returned by `GET /evals`, with a derived `editable`
+ * flag: true for user-created definitions (editable/deletable from the UI),
+ * false for read-only shipped YAML examples. */
+export interface EvalDefinitionSummary extends EvalDefinition {
+  editable: boolean;
+}
+
 export interface RunSummary {
   total_cases: number;
   total_calls: number;

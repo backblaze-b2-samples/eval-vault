@@ -120,7 +120,7 @@ app.add_middleware(
     # the pattern is allowed in addition to the explicit allowlist.
     allow_origin_regex=settings.api_cors_origin_regex or None,
     allow_credentials=True,
-    allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["Content-Type", "Authorization"],
 )
 

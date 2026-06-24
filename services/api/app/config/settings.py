@@ -38,6 +38,12 @@ class Settings(BaseSettings):
     # are scoped to this prefix; the full bucket explorer ignores it.
     evals_prefix: str = "evals/runs/"
 
+    # Where user-created eval definitions (JSON) are persisted in the bucket.
+    # Distinct from the read-only shipped YAML examples at repo-root /evals and
+    # from archived runs under evals_prefix. Sibling of evals/runs/ so it does
+    # not prefix-overlap with run listing.
+    definitions_prefix: str = "evals/definitions/"
+
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 
     @property

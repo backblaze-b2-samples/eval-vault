@@ -1,3 +1,6 @@
+# Local verification scratch (test inputs created during /verify)
+.local/
+
 # Dependencies
 node_modules/
 .pnpm-store/

@@ -1,8 +1,8 @@
-<!-- last_verified: 2026-06-23 -->
+<!-- last_verified: 2026-06-24 -->
 # Feature: Run an Eval
 
 ## Purpose
-Execute every case × target of an eval against Claude, score each answer, and archive the full bundle to B2. Real Anthropic API calls, real artifacts — nothing simulated.
+Execute every case × target of an eval against Claude, score each answer, and archive the full bundle to B2. Real Anthropic API calls, real artifacts — nothing simulated. The run path is identical whether the definition was shipped as YAML or created from the UI (see [Eval Definitions](eval-definitions.md)) — `get_definition()` resolves both sources transparently.
 
 ## Used By
 - UI: `/evals` page (Run button)

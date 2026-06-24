@@ -4,6 +4,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ApiError,
   compareRuns,
+  createEval,
+  deleteEval,
   deleteFile,
   getArtifact,
   getEvalRuns,
@@ -16,8 +18,9 @@ import {
   getRunManifest,
   getUploadActivity,
   runEval,
+  updateEval,
 } from "@/lib/api-client";
-import type { FileMetadata } from "@eval-vault/shared";
+import type { EvalDefinition, FileMetadata } from "@eval-vault/shared";
 
 // Single source of truth for query keys. Keep these tightly scoped so that
 // invalidating "files" doesn't blow away unrelated caches, and so an IDE
@@ -146,6 +149,45 @@ export function useRunEval() {
     onSuccess: () => {
       // A new run changes the run list, scoreboard stats, and dashboard.
       qc.invalidateQueries({ queryKey: qk.evalRuns() });
+      qc.invalidateQueries({ queryKey: qk.evalStats() });
+    },
+  });
+}
+
+export function useCreateEval() {
+  const qc = useQueryClient();
+  return useMutation<EvalDefinition, ApiError, EvalDefinition>({
+    mutationFn: (definition: EvalDefinition) => createEval(definition),
+    onSuccess: () => {
+      // A new definition changes the evals list and the dashboard's
+      // evals_defined count.
+      qc.invalidateQueries({ queryKey: qk.evals() });
+      qc.invalidateQueries({ queryKey: qk.evalStats() });
+    },
+  });
+}
+
+export function useUpdateEval() {
+  const qc = useQueryClient();
+  return useMutation<EvalDefinition, ApiError, EvalDefinition>({
+    mutationFn: (definition: EvalDefinition) => updateEval(definition),
+    onSuccess: () => {
+      // Edited targets/cases change the list card; stats are unaffected by an
+      // edit but cheap to refresh and keeps the dashboard honest.
+      qc.invalidateQueries({ queryKey: qk.evals() });
+      qc.invalidateQueries({ queryKey: qk.evalStats() });
+    },
+  });
+}
+
+export function useDeleteEval() {
+  const qc = useQueryClient();
+  return useMutation<{ deleted: boolean; name: string }, ApiError, string>({
+    mutationFn: (name: string) => deleteEval(name),
+    onSuccess: () => {
+      // A deleted definition drops out of the list and the dashboard's
+      // evals_defined count.
+      qc.invalidateQueries({ queryKey: qk.evals() });
       qc.invalidateQueries({ queryKey: qk.evalStats() });
     },
   });
