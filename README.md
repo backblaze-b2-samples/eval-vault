@@ -7,6 +7,32 @@ You define an eval (a YAML file of test cases — prompt + expected behavior + s
 
 It is for AI engineers and teams who treat eval results the way ops teams treat logs: **keep everything, query rarely, audit constantly.** That access pattern — a huge volume of small immutable JSON objects, written once and read on demand months later — is the textbook B2 workload.
 
+## What it looks like
+
+**Dashboard** — the Eval Scoreboard: evals defined, runs archived, artifacts stored on B2, average score, a per-run score-trend chart, and recent runs.
+
+![Eval Vault dashboard with the Eval Scoreboard metrics, score-trend chart, and recent runs](docs/images/dashboard.png)
+
+**Evals** — the eval definitions, each card showing its Claude targets, cases, and scorers, with a one-click Run.
+
+![Evals page listing eval definitions with their targets, cases, and scorers](docs/images/evals.png)
+
+**Library** — the scoped explorer over the `evals/runs/` prefix in your bucket, listing every archived run with its score.
+
+![Library page listing archived eval runs scoped to the evals/runs/ prefix](docs/images/library.png)
+
+**Run detail** — drill into a run for the cases × targets score grid; click any cell to inspect its artifacts.
+
+![Run detail page showing the cases by targets score grid](docs/images/run-detail.png)
+
+**Artifact viewer** — open a cell to read the archived input, output, score, and trace for that case × target.
+
+![Artifact viewer dialog showing the archived output for a case and target](docs/images/artifact-viewer.png)
+
+**Compare** — diff two archived runs cell-by-cell to hunt regressions after a model swap or prompt change.
+
+![Compare page diffing two runs cell-by-cell with per-cell score deltas](docs/images/compare.png)
+
 **What you get out of the box:**
 - Run an eval against multiple Claude models with one click — real Anthropic API calls, real archived artifacts
 - Five built-in scorers: `exact_match`, `contains`, `regex`, `json_valid`, and Claude-as-judge (`llm_judge`)
