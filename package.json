@@ -1,6 +1,7 @@
 {
   "name": "eval-vault",
   "private": true,
+  "packageManager": "pnpm@10.24.0",
   "scripts": {
     "doctor": "node scripts/doctor.mjs",
     "predev": "node scripts/doctor.mjs",
